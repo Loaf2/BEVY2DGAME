@@ -1,20 +1,22 @@
 use bevy::{camera::visibility::RenderLayers, color::palettes::tailwind, prelude::*};
+use bevy_kira_audio::prelude::*;
 use rand::RngExt;
 
-pub const PLAYER_SIZE: f32 = 64.0;
 pub const ENEMY_SIZE: f32 = 32.0;
 pub const PLAYER_SPEED: f32 = 500.0;
 pub static mut PLAYER_TIMES_CLICKED: f32 = 1.0;
 pub static mut NUMBER_OF_BALLS_COLLECTED: i32 = 0;
+pub const PLAYER_SIZE: f32 = 64.0;
 
 fn main
 ()
 {
 	App::new()
 		.add_plugins(DefaultPlugins)
-		.add_systems(Update, player_hit_enemy)
+		.add_plugins(AudioPlugin)
 		.add_systems(Startup, setup)
 		.add_systems(Update, player_movement)
+		.add_systems(Update, player_hit_enemy)
 		.run();
 }
 
@@ -53,7 +55,7 @@ pub fn setup
 			align_items: AlignItems::Center,
 			..default()
 		},
-		BackgroundColor(Color::srgb(255.0, 0.0, 0.0)),
+		BackgroundColor(tailwind::YELLOW_200.into()),
 	));
 
 	commands.spawn
@@ -61,7 +63,7 @@ pub fn setup
 		Sprite
 		{
 			image: asset_server.load("sprites/CollectBall.png"),
-			color: Color::srgb(170.0, 234.0, 0.0),
+			color: Color::srgba(220.0, 20.0, 60.0, 1.0),
 			custom_size: Some(Vec2::new(32., 32.)),
 			..default()
 		},
@@ -75,7 +77,7 @@ pub fn setup
 		Sprite
 		{
 			image: asset_server.load("sprites/BlueBall.png"),
-			color: Color::srgb(230.0, 234.0, 0.0),
+			color: tailwind::BLUE_400.into(),
 			custom_size: Some(Vec2::new(64., 64.)),
 			..default()
 		},
@@ -126,6 +128,7 @@ fn player_movement
 
 pub fn player_hit_enemy
 (
+	audio: Res<Audio>,
 	mut commands: Commands,
 	mut player_query: Query<&Transform, With<Player>>,
 	mut enemy_query: Query<(Entity, &Transform), With<Enemy>>,
@@ -145,9 +148,9 @@ pub fn player_hit_enemy
 				let enemy_radius = ENEMY_SIZE / 2.0;
 				if distance < player_radius + enemy_radius
 				{
+					play_sound(&asset_server, &audio);
 					commands.entity(enemy_entity).despawn();
 					unsafe { NUMBER_OF_BALLS_COLLECTED += 1 };
-					unsafe { println!("Number of balls collected: {:?}", *&raw const NUMBER_OF_BALLS_COLLECTED )};
 					let mut rng = rand::rng();
 					let random_location_x: i32 = rng.random_range(-500..500);
 					let random_location_y: i32 = rng.random_range(-350..350);
@@ -156,7 +159,7 @@ pub fn player_hit_enemy
 						Sprite
 						{
 							image: asset_server.load("sprites/CollectBall.png"),
-							color: Color::srgb(170.0, 234.0, 0.0),
+							color: Color::srgba(220.0, 20.0, 60.0, 1.0),
 							custom_size: Some(Vec2::new(32., 32.)),
 							..default()
 						},
@@ -168,4 +171,14 @@ pub fn player_hit_enemy
 			}
 		}
 	}
+}
+
+pub fn play_sound
+(
+	asset_server: &Res<AssetServer>,
+	audio: &Res<Audio>,
+)
+{
+	let audio_to_play = asset_server.load("audios/sound1.ogg");
+	audio.play(audio_to_play);
 }
