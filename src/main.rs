@@ -181,5 +181,9 @@ pub fn play_sound
 {
 	audio.set_volume(-40.);
 	let audio_to_play = asset_server.load("audios/sound1.ogg");
+	if audio.is_playing_sound()
+	{
+		return;
+	}
 	audio.play(audio_to_play);
 }
