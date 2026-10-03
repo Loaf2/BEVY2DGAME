@@ -55,7 +55,7 @@ pub fn setup
 			align_items: AlignItems::Center,
 			..default()
 		},
-		BackgroundColor(tailwind::YELLOW_200.into()),
+		BackgroundColor(tailwind::LIME_400.into()),
 	));
 
 	commands.spawn
