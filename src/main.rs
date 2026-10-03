@@ -179,6 +179,7 @@ pub fn play_sound
 	audio: &Res<Audio>,
 )
 {
+	audio.set_volume(-40.);
 	let audio_to_play = asset_server.load("audios/sound1.ogg");
 	audio.play(audio_to_play);
 }
